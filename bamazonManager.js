@@ -16,22 +16,22 @@ connection.connect(function (err) {
     start();
 });
 
-function start(){
+function start() {
     inquirer.prompt({
-        name:"managerChoice",
-        type:"list",
-        message:"What would you like to do?",
-        choices:["View Products for sale","View Low Inventory","Add to Inventory","Add New Product","Quit"]
-    }).then(function (answer){
-        switch(answer.managerChoice){
+        name: "managerChoice",
+        type: "list",
+        message: "What would you like to do?",
+        choices: ["View Products for sale", "View Low Inventory", "Add to Inventory", "Add New Product", "Quit"]
+    }).then(function (answer) {
+        switch (answer.managerChoice) {
             case "View Products for sale":
                 return displayTable();
             case "View Low Inventory":
                 return lowInventory();
             case "Add to Inventory":
-                return console.log("Add Inventory");
+                return addInventory();
             case "Add New Product":
-                return console.log("New product");
+                return addNewProduct();
             default:
                 return connection.end();
         }
@@ -54,11 +54,120 @@ function displayTable() {
     });
 }
 
-function lowInventory{
-    
+function lowInventory() {
+    connection.query("SELECT * from products WHERE stock_quantity < ?", [5], function (err, res) {
+        if (res[0] === []) {
+            console.log("No Low Inventory");
+            start();
+        }
+        else {
+            var table = new Table({
+                head: ['ID', 'Product Name', 'Department', 'Price', 'Quantity']
+                , colWidths: [5, 23, 15, 10, 15]
+            });
+            for (var i = 0; i < res.length; i++) {
+                table.push(
+                    [res[i].item_id, res[i].product_name, res[i].department_name, res[i].price, res[i].stock_quantity]
+                );
+            }
+            console.log(table.toString());
+            start();
+        }
+    })
 }
 
+function addInventory() {
+    inquirer.prompt([
+        {
+            name: "add_id",
+            type: "input",
+            message: "What is the ID of the product you want to add inventory to?",
+            validate: function (value) {
+                if ((isNaN(value) === false) && (value % 1 === 0) && value !== "") {
+                    return true;
+                }
+                console.log("\nEnter a whole number please.")
+                return false;
+            }
+        },
+        {
+            name: "amount",
+            type: "input",
+            message: "How many units of the product would you like to add?",
+            validate: function (value) {
+                if ((isNaN(value) === false) && (value % 1 === 0) && value !== "") {
+                    return true;
+                }
+                console.log("\nEnter a whole number please.")
+                return false;
+            }
+        }
+    ]).then(function (answer) {
+        connection.query("SELECT * from products where item_id=?", [answer.add_id], function (err, res) {
+            newQuant = parseInt(res[0].stock_quantity) + parseInt(answer.amount);
+            connection.query("UPDATE products SET stock_quantity=? WHERE item_id=?", [newQuant, answer.add_id], function (err, res) {
+                console.log("Inventory updated");
+                start();
+            })
+        })
+    })
+}
 
-// If a manager selects View Low Inventory, then it should list all items with an inventory count lower than five.
-// If a manager selects Add to Inventory, your app should display a prompt that will let the manager "add more" of any item currently in the store.
-// If a manager selects Add New Product, it should allow the manager to add a completely new product to the store.
+function addNewProduct(){
+    inquirer.prompt([
+        {
+            name: "product_name",
+            type: "input",
+            message: "What is the name of the product you would to add?",
+            validate: function (value) {
+                if (value !== "") {
+                    return true;
+                }
+                console.log("\nEnter a product please.")
+                return false;
+            }
+        },
+        {
+            name: "dept_name",
+            type: "input",
+            message: "What department does this product fall into?",
+            validate: function (value) {
+                if (value !== "") {
+                    return true;
+                }
+                console.log("\nEnter a department please.")
+                return false;
+            }
+        },
+        {
+            name: "price",
+            type: "input",
+            message: "Price?",
+            validate: function (value) {
+                if ((isNaN(value) === false) && value !== "") {
+                    return true;
+                }
+                console.log("\nEnter a number please.")
+                return false;
+            }
+        },
+        {
+            name: "stock",
+            type: "input",
+            message: "How many are in stock?",
+            validate: function (value) {
+                if ((isNaN(value) === false) && (value % 1 === 0) && value !== "") {
+                    return true;
+                }
+                console.log("\nEnter a whole number please.")
+                return false;
+            }
+        },
+    ]).then(function (answer) {
+        connection.query("INSERT INTO products (product_name,department_name,price,stock_quantity) VALUES (?,?,?,?)",[answer.product_name,answer.dept_name,answer.price,answer.stock],function(err,res){
+            console.log("Inventory added!");
+            start();
+        })
+    })
+}
+
