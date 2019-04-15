@@ -70,10 +70,16 @@ function questions() {
                 console.log("Insufficient quantity! Try again.")
                 nextStep();
             }
+            // else if (res[0] == 'undefined'){
+            //     console.log("Not a valid product ID. Try again.")
+            //     nextStep();
+            // }
             else {
+                var price = res[0].price * parseInt(answer.desired_quantity)
                 var newQuant = parseInt(res[0].stock_quantity) - parseInt(answer.desired_quantity);
+                var productName=res[0].product_name;
                 connection.query("UPDATE products SET stock_quantity = ? WHERE item_id = ?", [newQuant, answer.buy_id], function (err, res) {
-                    console.log("Purchase complete!");
+                    console.log("Purchase complete! You spent " + price + " dollars on "+ productName+"s.");
                     nextStep();
                 })
             }
