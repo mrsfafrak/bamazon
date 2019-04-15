@@ -1,73 +1,45 @@
+# Tori's Bamazon App
+This Bamazon app is similar to the famous Amazon. Two views of the app are available: customer view and manager view.
 
-8. However, if your store _does_ have enough of the product, you should fulfill the customer's order.
-   * This means updating the SQL database to reflect the remaining quantity.
-   * Once the update goes through, show the customer the total cost of their purchase.
+### Usage
+By entering specific commands in the command line, the user can view the app either as a customer or a manager. Depending on the view will determine which actions are available.
 
-- - -
+**Be sure to run "npm install" in command line before attempting the following prompts.**
 
-### Challenge #2: Manager View (Next Level)
+##### Customer View
+To view the app as a customer, use the following syntax in your command line:
 
-* Create a new Node application called `bamazonManager.js`. Running this application will:
+     node bamazonCustomer.js 
 
-  * List a set of menu options:
+###### Screen Shots:
 
-    * View Products for Sale
-    
-    * View Low Inventory
-    
-    * Add to Inventory
-    
-    * Add New Product
+As a customer you will be shown what is available for purchase and prompted on what you would like to buy:
 
-  * If a manager selects `View Products for Sale`, the app should list every available item: the item IDs, names, prices, and quantities.
+![Customer_view](assets/customerScreen.png)
 
-  * If a manager selects `View Low Inventory`, then it should list all items with an inventory count lower than five.
+![Customer_purchase](assets/customerPurchase.png)
 
-  * If a manager selects `Add to Inventory`, your app should display a prompt that will let the manager "add more" of any item currently in the store.
+##### Manager View
+To view the app as a manager, use the following syntax in your command line:
 
-  * If a manager selects `Add New Product`, it should allow the manager to add a completely new product to the store.
+     node bamazonManager.js
 
-- - -
+###### Screen Shots:
 
-* If you finished Challenge #2 and put in all the hours you were willing to spend on this activity, then rest easy! Otherwise continue to the next and final challenge.
+As a manager you will be prompted to chose from a selection of actions:
 
-- - -
+![Action_Choices](assets/managerprompts.png)
 
-### Challenge #3: Supervisor View (Final Level)
+![Inventory](assets/Products_manager.png)
 
-1. Create a new MySQL table called `departments`. Your table should include the following columns:
+![Low_Inventory](assets/lowInventory.png)
 
-   * department_id
+![Add_Inventory](assets/addInventory.png)
 
-   * department_name
+![Add_Product](assets/addProduct.png)
 
-   * over_head_costs (A dummy number you set for each department)
 
-2. Modify the products table so that there's a product_sales column, and modify your `bamazonCustomer.js` app so that when a customer purchases anything from the store, the price of the product multiplied by the quantity purchased is added to the product's product_sales column.
 
-   * Make sure your app still updates the inventory listed in the `products` column.
 
-3. Create another Node app called `bamazonSupervisor.js`. Running this application will list a set of menu options:
 
-   * View Product Sales by Department
-   
-   * Create New Department
 
-4. When a supervisor selects `View Product Sales by Department`, the app should display a summarized table in their terminal/bash window. Use the table below as a guide.
-
-| department_id | department_name | over_head_costs | product_sales | total_profit |
-| ------------- | --------------- | --------------- | ------------- | ------------ |
-| 01            | Electronics     | 10000           | 20000         | 10000        |
-| 02            | Clothing        | 60000           | 100000        | 40000        |
-
-5. The `total_profit` column should be calculated on the fly using the difference between `over_head_costs` and `product_sales`. `total_profit` should not be stored in any database. You should use a custom alias.
-
-6. If you can't get the table to display properly after a few hours, then feel free to go back and just add `total_profit` to the `departments` table.
-
-   * Hint: You may need to look into aliases in MySQL.
-
-   * Hint: You may need to look into GROUP BYs.
-
-   * Hint: You may need to look into JOINS.
-
-   * **HINT**: There may be an NPM package that can log the table to the console. What's is it? Good question :)
