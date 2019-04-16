@@ -66,20 +66,20 @@ function questions() {
     ]).then(function (answer) {
 
         connection.query("SELECT * FROM products WHERE item_id=?", [answer.buy_id], function (err, res) {
-            if (parseInt(res[0].stock_quantity) < parseInt(answer.desired_quantity)) {
+            if (!res.length) {
+                console.log("That product ID does not exist. Try again.")
+                nextStep();
+            }
+            else if (parseInt(res[0].stock_quantity) < parseInt(answer.desired_quantity)) {
                 console.log("Insufficient quantity! Try again.")
                 nextStep();
             }
-            // else if (res[0] == 'undefined'){
-            //     console.log("Not a valid product ID. Try again.")
-            //     nextStep();
-            // }
             else {
                 var price = res[0].price * parseInt(answer.desired_quantity)
                 var newQuant = parseInt(res[0].stock_quantity) - parseInt(answer.desired_quantity);
-                var productName=res[0].product_name;
+                var productName = res[0].product_name;
                 connection.query("UPDATE products SET stock_quantity = ? WHERE item_id = ?", [newQuant, answer.buy_id], function (err, res) {
-                    console.log("Purchase complete! You spent " + price + " dollars on "+ productName+"s.");
+                    console.log("Purchase complete! You spent " + price + " dollars on " + productName + "s.");
                     nextStep();
                 })
             }

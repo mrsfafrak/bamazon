@@ -56,7 +56,7 @@ function displayTable() {
 
 function lowInventory() {
     connection.query("SELECT * from products WHERE stock_quantity < ?", [5], function (err, res) {
-        if (res[0] === []) {
+        if (!res.length) {
             console.log("No Low Inventory");
             start();
         }
@@ -104,16 +104,22 @@ function addInventory() {
         }
     ]).then(function (answer) {
         connection.query("SELECT * from products where item_id=?", [answer.add_id], function (err, res) {
-            newQuant = parseInt(res[0].stock_quantity) + parseInt(answer.amount);
-            connection.query("UPDATE products SET stock_quantity=? WHERE item_id=?", [newQuant, answer.add_id], function (err, res) {
-                console.log("Inventory updated");
+            if (!res.length) {
+                console.log("That product ID does not exist. Try again.");
                 start();
-            })
+            }
+            else {
+                newQuant = parseInt(res[0].stock_quantity) + parseInt(answer.amount);
+                connection.query("UPDATE products SET stock_quantity=? WHERE item_id=?", [newQuant, answer.add_id], function (err, res) {
+                    console.log("Inventory updated");
+                    start();
+                })
+            }
         })
     })
 }
 
-function addNewProduct(){
+function addNewProduct() {
     inquirer.prompt([
         {
             name: "product_name",
@@ -164,7 +170,7 @@ function addNewProduct(){
             }
         },
     ]).then(function (answer) {
-        connection.query("INSERT INTO products (product_name,department_name,price,stock_quantity) VALUES (?,?,?,?)",[answer.product_name,answer.dept_name,answer.price,answer.stock],function(err,res){
+        connection.query("INSERT INTO products (product_name,department_name,price,stock_quantity) VALUES (?,?,?,?)", [answer.product_name, answer.dept_name, answer.price, answer.stock], function (err, res) {
             console.log("Inventory added!");
             start();
         })
